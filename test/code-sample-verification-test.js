@@ -64,7 +64,7 @@ describe('the code sample', function () {
   });
 
   // TODO uncomment this test if you implement retrieval of multiple pages of data
-  it.skip('returns all pages of data', async function () {
+  it('returns all pages of data', async function () {
     let createdRecords = 0;
     const schoolId = uuid();
     while (createdRecords++ < 10) {

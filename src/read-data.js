@@ -19,43 +19,77 @@ const studentLastNameGsiName = 'studentLastNameGsi';
  * @param {string} [event.studentLastName]
  */
 exports.handler = async (event) => {
-  let params;
-  let keyConditionExpression;
   const limit = 5;
-  // let lastQuerySize = 5; // defaulting this for the while loop
-  // const results = [];
+  let params = {
+    TableName: tableName,
+    Limit: limit
+  }
 
-  if(event.studentLastName) {
+  /**
+   * Setting the query paramaters for different events we might receive
+   */
+  if(event.studentId && event.schoolId) {
     params = {
-      TableName: tableName,
+      ...params,
+      KeyConditionExpression: 'schoolId = :hkey  and studentId = :rkey',
+      ExpressionAttributeValues: {
+        ':hkey': event.schoolId,
+        ':rkey': event.studentId
+      },
+    };
+  } else if(event.studentLastName) {
+    params = {
+      ...params,
       IndexName: studentLastNameGsiName,
       KeyConditionExpression: 'studentLastName = :studentLastName',
       ExpressionAttributeValues: {
         ':studentLastName': event.studentLastName
       },
-      Limit: limit
-    }
+    };
   } else {
-    keyConditionExpression = 'schoolId = :hkey';
-    if(event.studentId) {
-      keyConditionExpression += ' and studentId = :rkey'
-    }
     params = {
-      TableName: tableName,
-      KeyConditionExpression: keyConditionExpression,
+      ...params,
+      KeyConditionExpression: 'schoolId = :hkey',
       ExpressionAttributeValues: {
-        ':hkey': event.schoolId,
-        ':rkey': event.studentId
+        ':hkey': event.schoolId
       },
-      Limit: limit
     }
-  };
+  }
 
-  return new Promise((resolve, reject) =>{
-    db.query(params).promise()
-      .then(({Items}) => resolve(Items))
-      .catch(reject);
-  })
+  /**
+   * Main promise returned to Lambda async function
+   */
+  return new Promise((resolve, reject) => {
+    let results = [];
+
+    recursivelyQuery()
+      .then(res => {
+        return resolve(results);
+      })
+      .then(err => {
+        reject(err);
+      })
+
+    /**
+     * Recursive function that querys DynamoDB until it has reached the end
+     * of items that meet event criteria.
+     * @param {*} ExclusiveStartKey
+     * @returns
+     */
+    function recursivelyQuery(ExclusiveStartKey) {
+      return new Promise((resolve, reject) => {
+        // console.log({...params, ExclusiveStartKey});
+        db.query({...params, ExclusiveStartKey}).promise()
+          .then(response => {
+            results = results.concat(response.Items);
+            if(response.Count === limit) {
+              return resolve(recursivelyQuery(response.LastEvaluatedKey));
+            }
+            return resolve();
+          });
+      });
+    }
+  });
   // TODO use the AWS.DynamoDB.DocumentClient to write a query against the 'SchoolStudents' table and return the results.
   // The 'SchoolStudents' table key is composed of schoolId (partition key) and studentId (range key).
 
@@ -64,3 +98,4 @@ exports.handler = async (event) => {
   // TODO (extra credit) limit the amount of records returned in the query to 5 and then implement the logic to return all
   //  pages of records found by the query (uncomment the test which exercises this functionality)
 };
+
