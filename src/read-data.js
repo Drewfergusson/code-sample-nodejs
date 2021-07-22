@@ -90,12 +90,12 @@ exports.handler = async (event) => {
       });
     }
   });
-  // TODO use the AWS.DynamoDB.DocumentClient to write a query against the 'SchoolStudents' table and return the results.
-  // The 'SchoolStudents' table key is composed of schoolId (partition key) and studentId (range key).
-
-  // TODO (extra credit) if event.studentLastName exists then query using the 'studentLastNameGsi' GSI and return the results.
-
-  // TODO (extra credit) limit the amount of records returned in the query to 5 and then implement the logic to return all
-  //  pages of records found by the query (uncomment the test which exercises this functionality)
 };
 
+// TODO use the AWS.DynamoDB.DocumentClient to write a query against the 'SchoolStudents' table and return the results.
+// The 'SchoolStudents' table key is composed of schoolId (partition key) and studentId (range key).
+
+// TODO (extra credit) if event.studentLastName exists then query using the 'studentLastNameGsi' GSI and return the results.
+
+// TODO (extra credit) limit the amount of records returned in the query to 5 and then implement the logic to return all
+//  pages of records found by the query (uncomment the test which exercises this functionality)

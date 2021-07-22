@@ -44,7 +44,8 @@ exports.handler = async (event) => {
         reject(error);
       });
   })
-  // TODO validate that all expected attributes are present (assume they are all required)
-  // TODO use the AWS.DynamoDB.DocumentClient to save the 'SchoolStudent' record
-  // The 'SchoolStudents' table key is composed of schoolId (partition key) and studentId (range key).
 };
+
+// TODO validate that all expected attributes are present (assume they are all required)
+// TODO use the AWS.DynamoDB.DocumentClient to save the 'SchoolStudent' record
+// The 'SchoolStudents' table key is composed of schoolId (partition key) and studentId (range key).
