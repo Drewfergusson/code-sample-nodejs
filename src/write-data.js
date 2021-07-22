@@ -38,12 +38,10 @@ exports.handler = async (event) => {
     if(!dataIdValid) {
       return reject();
     }
-    db.put(params).promise()
-      .then(response => resolve(response))
-      .catch(error => {
-        reject(error);
-      });
-  })
+    return db.put(params).promise()
+      .then(resolve)
+      .catch(reject);
+  });
 };
 
 // TODO validate that all expected attributes are present (assume they are all required)

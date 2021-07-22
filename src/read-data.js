@@ -66,9 +66,7 @@ exports.handler = async (event) => {
       .then(res => {
         return resolve(results);
       })
-      .then(err => {
-        reject(err);
-      })
+      .then(reject);
 
     /**
      * Recursive function that querys DynamoDB until it has reached the end
@@ -77,7 +75,7 @@ exports.handler = async (event) => {
      * @returns
      */
     function recursivelyQuery(ExclusiveStartKey) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         // console.log({...params, ExclusiveStartKey});
         db.query({...params, ExclusiveStartKey}).promise()
           .then(response => {
