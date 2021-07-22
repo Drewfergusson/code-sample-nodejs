@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 
-const dynamodb = new AWS.DynamoDB.DocumentClient({
+const db = new AWS.DynamoDB.DocumentClient({
   apiVersion: '2012-08-10',
   endpoint: new AWS.Endpoint('http://localhost:8000'),
   region: 'us-west-2',
@@ -18,7 +18,25 @@ const studentLastNameGsiName = 'studentLastNameGsi';
  * @param {string} event.studentId
  * @param {string} [event.studentLastName]
  */
-exports.handler = (event) => {
+exports.handler = async (event) => {
+  const params = {
+    TableName: tableName,
+    KeyConditionExpression: 'schoolId = :hkey and studentId = :rkey',
+    ExpressionAttributeValues: {
+      ':hkey': event.schoolId,
+      ':rkey': event.studentId
+    }
+  }
+  return new Promise((resolve, reject) => {
+    db.query(params).promise()
+      .then(({Items}) => {
+        resolve(Items);
+      })
+      .catch(error => {
+        reject(error);
+      })
+
+  });
   // TODO use the AWS.DynamoDB.DocumentClient to write a query against the 'SchoolStudents' table and return the results.
   // The 'SchoolStudents' table key is composed of schoolId (partition key) and studentId (range key).
 
