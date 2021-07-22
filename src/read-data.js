@@ -19,24 +19,43 @@ const studentLastNameGsiName = 'studentLastNameGsi';
  * @param {string} [event.studentLastName]
  */
 exports.handler = async (event) => {
-  const params = {
-    TableName: tableName,
-    KeyConditionExpression: 'schoolId = :hkey and studentId = :rkey',
-    ExpressionAttributeValues: {
-      ':hkey': event.schoolId,
-      ':rkey': event.studentId
-    }
-  }
-  return new Promise((resolve, reject) => {
-    db.query(params).promise()
-      .then(({Items}) => {
-        resolve(Items);
-      })
-      .catch(error => {
-        reject(error);
-      })
+  let params;
+  let keyConditionExpression;
+  const limit = 5;
+  // let lastQuerySize = 5; // defaulting this for the while loop
+  // const results = [];
 
-  });
+  if(event.studentLastName) {
+    params = {
+      TableName: tableName,
+      IndexName: studentLastNameGsiName,
+      KeyConditionExpression: 'studentLastName = :studentLastName',
+      ExpressionAttributeValues: {
+        ':studentLastName': event.studentLastName
+      },
+      Limit: limit
+    }
+  } else {
+    keyConditionExpression = 'schoolId = :hkey';
+    if(event.studentId) {
+      keyConditionExpression += ' and studentId = :rkey'
+    }
+    params = {
+      TableName: tableName,
+      KeyConditionExpression: keyConditionExpression,
+      ExpressionAttributeValues: {
+        ':hkey': event.schoolId,
+        ':rkey': event.studentId
+      },
+      Limit: limit
+    }
+  };
+
+  return new Promise((resolve, reject) =>{
+    db.query(params).promise()
+      .then(({Items}) => resolve(Items))
+      .catch(reject);
+  })
   // TODO use the AWS.DynamoDB.DocumentClient to write a query against the 'SchoolStudents' table and return the results.
   // The 'SchoolStudents' table key is composed of schoolId (partition key) and studentId (range key).
 

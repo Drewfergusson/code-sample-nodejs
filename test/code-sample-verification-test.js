@@ -38,7 +38,7 @@ describe('the code sample', function () {
   });
 
   // TODO (extra credit) enable this test if you implement the GSI query in src/read-data.js
-  it.skip('(extra credit) can query for SchoolStudent records by studentLastName', async function () {
+  it('(extra credit) can query for SchoolStudent records by studentLastName', async function () {
     const schoolId = uuid();
     const studentId = uuid();
 
